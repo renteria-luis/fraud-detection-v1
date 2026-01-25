@@ -31,3 +31,7 @@ mlruns/
 
 # OS
 .DS_Store
+
+# Virtual environment
+
+venv/
