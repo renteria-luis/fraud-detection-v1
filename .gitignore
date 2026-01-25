@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Data (no subir CSVs grandes)
+data/raw/*.csv
+data/processed/*.csv
+*.csv
+
+# Models (no subir modelos entrenados)
+models/*.pkl
+models/*.pth
+models/*.h5
+
+# MLflow
+mlruns/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
