@@ -34,4 +34,6 @@ class FeatureEngineering(BaseEstimator, TransformerMixin):
         X_copy['hour_sin'] = np.sin(2 * np.pi * hours / 24)     # cyclical sin
         X_copy['hour_cos'] = np.cos(2 * np.pi * hours / 24)     # cyclical cos
 
+        X_copy.drop('Time', axis=1, inplace=True)
+
         return X_copy
