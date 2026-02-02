@@ -9,7 +9,7 @@ from xgboost import XGBClassifier
 from src.features import FeatureEngineering
 
 
-def training_pipeline(model_name:str='rf', params:dict=None) -> Pipeline:
+def training_pipeline(model_name:str='rf', params:dict=None, seed:int=42) -> Pipeline:
     """
     Builds a full ML pipeline: applies FeatureEngineering, preprocesses numeric and boolean features,
     and fits a classifier (LogisticRegression, RandomForest, or XGBoost) with optional parameters.
@@ -41,17 +41,17 @@ def training_pipeline(model_name:str='rf', params:dict=None) -> Pipeline:
     )
 
     if model_name == 'logreg':
-        model = LogisticRegression(**params)
+        model = LogisticRegression(random_state=seed, max_iter=1000)
     elif model_name == 'rf':
-        model = RandomForestClassifier(**params)
+        model = RandomForestClassifier(random_state=seed)
     elif model_name == 'xgb':
-        model = XGBClassifier(**params)
+        model = XGBClassifier(random_state=seed, tree_method='hist', device='cuda', eval_metric='aucpr', n_jobs=1)
     else:
         raise ValueError(f"{model_name}: not supported model")
     
     return Pipeline([
         ('fe', FeatureEngineering()),    # creates new cols
         ('preprocessor', preprocessor),  # clasify and cleans them
-        ('classifier', model)            # predictor
+        ('model', model)                 # predictor
     ])
 
