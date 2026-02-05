@@ -41,11 +41,11 @@ def training_pipeline(model_name:str='rf', params:dict=None, seed:int=42) -> Pip
     )
 
     if model_name == 'logreg':
-        model = LogisticRegression(random_state=seed, max_iter=1000)
+        model = LogisticRegression(random_state=seed, max_iter=1000, **params)
     elif model_name == 'rf':
-        model = RandomForestClassifier(random_state=seed)
+        model = RandomForestClassifier(random_state=seed, **params)
     elif model_name == 'xgb':
-        model = XGBClassifier(random_state=seed, tree_method='hist', device='cuda', eval_metric='aucpr', n_jobs=1)
+        model = XGBClassifier(random_state=seed, tree_method='hist', device='cpu', eval_metric='aucpr', n_jobs=-1, **params)
     else:
         raise ValueError(f"{model_name}: not supported model")
     
