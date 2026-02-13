@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 class FraudApplication(BaseModel):
     """Input schema for a single transaction."""
 
-    Time: float = Field(..., ge=0, le=172792, description='Elapsed time recorded in seconds')
+    Time: float = Field(..., ge=0, description='Elapsed time recorded in seconds')
     Amount: float = Field(..., ge=0, description='Attempted transfer amount')
     V1: float = Field(..., description='PCA component 1 derived from original transaction features')
     V2: float = Field(..., description='PCA component 2 derived from original transaction features')
@@ -34,48 +34,49 @@ class FraudApplication(BaseModel):
     V27: float = Field(..., description='PCA component 27 derived from original transaction features')
     V28: float = Field(..., description='PCA component 28 derived from original transaction features')
 
-    class Config:
-        schema_extra = {
-            'example': {
-                'Time': 172788.000,
-                'Amount': 67.880,
-                'V1': 1.920,
-                'V2': -0.301,
-                'V3': -3.250,
-                'V4': -0.558,
-                'V5': 2.631,
-                'V6': 3.031,
-                'V7': -0.297,
-                'V8': 0.708,
-                'V9': 0.432,
-                'V10': -0.485,
-                'V11': 0.412,
-                'V12': 0.063,
-                'V13': -0.184,
-                'V14': -0.511,
-                'V15': 1.329,
-                'V16': 0.141,
-                'V17': 0.314,
-                'V18': 0.396,
-                'V19': -0.577,
-                'V20': 0.001,
-                'V21': 0.232,
-                'V22': 0.578,
-                'V23': -0.038,
-                'V24': 0.640,
-                'V25': 0.266,
-                'V26': -0.087,
-                'V27': 0.004,
-                'V28': -0.027
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "Time": 172788.0,
+                "Amount": 67.88,
+                "V1": 1.92,
+                "V2": -0.301,
+                "V3": -3.25,
+                "V4": -0.558,
+                "V5": 2.631,
+                "V6": 3.031,
+                "V7": -0.297,
+                "V8": 0.708,
+                "V9": 0.432,
+                "V10": -0.485,
+                "V11": 0.412,
+                "V12": 0.063,
+                "V13": -0.184,
+                "V14": -0.511,
+                "V15": 1.329,
+                "V16": 0.141,
+                "V17": 0.314,
+                "V18": 0.396,
+                "V19": -0.577,
+                "V20": 0.001,
+                "V21": 0.232,
+                "V22": 0.578,
+                "V23": -0.038,
+                "V24": 0.64,
+                "V25": 0.266,
+                "V26": -0.087,
+                "V27": 0.004,
+                "V28": -0.027
             }
         }
+    }
 
 class FraudPrediction(BaseModel):
     """Output schema for prediction."""
 
     fraud_probability: float = Field(..., ge=0, le=1)
-    is_fraud: bool = Field(..., alias='Class')
-    threshold_used: float = Field(gt=0, lt=1)
+    is_fraud: bool
+    threshold_used: float = Field(ge=0, le=1)
     model_version: str
 
 class HealthCheck(BaseModel):
