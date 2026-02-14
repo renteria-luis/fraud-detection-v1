@@ -1,0 +1,22 @@
+# this compose is for development only, it is not intended for production use
+# docker-compose.yaml will use this file as an override, so we can run docker-compose up and it will use the settings in this file
+services:
+    fraud-api:
+        build:
+            context: .
+            dockerfile: Dockerfile
+
+        ports:
+            - "8000:8000"
+
+        # bind mounts:
+        volumes:
+            - ./src:/app/src
+            - ./api:/app/api
+            - ./params.yaml:/app/params.yaml
+        
+        environment:
+            - LOG_LEVEL=debug
+            - PYTHONDONTWRITEBYTECODE=1
+
+        command: ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--reload-dir", "/app/api", "--reload-dir", "/app/src"]
