@@ -1,0 +1,30 @@
+# git
+.git
+.gitignore
+
+# venvs
+venv/
+.venv/
+env/
+
+# python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# notebooks & checkpoints
+notebooks/
+.ipynb_checkpoints/
+
+# data
+data/
+
+# Docker files 
+Dockerfile
+docker-compose.yml
+docker-compose.override.yml
+.dockerignore
+
+# local configs
+.env
