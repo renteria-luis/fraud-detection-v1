@@ -1,0 +1,16 @@
+# Classify notebooks as documentation (they ARE reports, not production code)
+*.ipynb linguist-documentation
+
+# Dockerfile/compose are infrastructure config, not core code
+Dockerfile linguist-language=Dockerfile
+docker-compose*.yml linguist-language=YAML
+
+# YAML configs are configuration, not code
+*.yaml linguist-language=YAML
+*.yml linguist-language=YAML
+
+# Explicitly mark Python as the primary language
+*.py linguist-language=Python
+
+# Mark requirements.txt as config
+requirements.txt linguist-vendored=false linguist-generated=false
