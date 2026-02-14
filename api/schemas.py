@@ -77,12 +77,12 @@ class FraudPrediction(BaseModel):
     fraud_probability: float = Field(..., ge=0, le=1)
     is_fraud: bool
     threshold_used: float = Field(ge=0, le=1)
-    model_version: str
+    version: str
 
 class HealthCheck(BaseModel):
     """Health check response."""
 
     status: str
-    model_loaded: bool
-    model_version: str
+    is_model_loaded: bool
+    version: str
     

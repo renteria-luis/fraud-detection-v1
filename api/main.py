@@ -3,12 +3,12 @@ from pathlib import Path
 import yaml
 import pandas as pd
 from fastapi import FastAPI, HTTPException
-from .schemas import FraudApplication, FraudPrediction, HealthCheck
+from api.schemas import FraudApplication, FraudPrediction, HealthCheck
 from src.features import FeatureEngineering
 
 # paths
 BASE_DIR = Path(__file__).parent.parent  # root of the project
-MODELS_DIR = BASE_DIR / 'models' 
+MODELS_DIR = BASE_DIR / 'models'
 PARAMS_PATH = BASE_DIR / 'params.yaml'
 
 app = FastAPI(
@@ -48,8 +48,8 @@ def startup_event():
 def health():
     return {
         'status': 'ok',
-        'model_loaded': server.model is not None,
-        'model_version': '1.0.0'
+        'is_model_loaded': server.model is not None,
+        'version': '1.0.0'
     }
 
 @app.post('/predict', response_model=FraudPrediction)
@@ -65,7 +65,7 @@ def predict(transaction: FraudApplication):
             'fraud_probability': float(y_prob),
             'is_fraud': bool(y_prob >= server.threshold),
             'threshold_used': server.threshold,
-            'model_version': '1.0.0'
+            'version': '1.0.0'
         }
     
     except Exception as e:
