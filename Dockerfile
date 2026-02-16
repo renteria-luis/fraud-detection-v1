@@ -16,10 +16,13 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
-COPY api/ /app/api/
+# COPY api/ /app/api/ # not required in HF, compose has a bind mount anyways to run locally
 COPY models/ /app/models/
 COPY src/ /app/src/
 COPY params.yaml /app/
+# include requirements for documentation & app.py for HF application
+COPY requirements.txt /app/
+COPY app.py /app/
 RUN apt-get update && apt-get install -y curl
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 
