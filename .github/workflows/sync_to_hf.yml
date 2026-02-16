@@ -1,0 +1,30 @@
+name: Sync to Hugging Face
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to HF
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          # 1. Limpiar entorno temporal (No afecta a tu GitHub)
+          rm -rf .git assets notebooks data
+          
+          # 2. Re-inicializar solo para Hugging Face
+          git init
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          
+          # 3. Agregar solo lo necesario para que el modelo corra
+          git add app.py src/ models/ params.yaml requirements.txt Dockerfile
+          git commit -m "deploy: production release v1"
+          
+          # 4. Forzar el envío a HF (Borrando su historial previo)
+          git remote add space https://renteria-luis:$HF_TOKEN@huggingface.co/spaces/renteria-luis/fraud-detection-v1
+          git push space master:main --force
