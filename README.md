@@ -1,3 +1,11 @@
+---
+title: Fraud Detection V1
+emoji: 🛡️
+colorFrom: blue
+colorTo: red
+sdk: docker
+pinned: false
+---
 # 🛡️ Fraud Detection System - V1
 
 **End-to-end credit card fraud detection using XGBoost, FastAPI & Docker**

@@ -22,7 +22,7 @@ jobs:
           git config user.email "github-actions@github.com"
           
           # 3. Agregar solo lo necesario para que el modelo corra
-          git add app.py src/ models/ params.yaml requirements.txt Dockerfile
+          git add app.py src/ models/ params.yaml requirements.txt Dockerfile README.md
           git commit -m "deploy: production release v1"
           
           # 4. Forzar el envío a HF (Borrando su historial previo)
