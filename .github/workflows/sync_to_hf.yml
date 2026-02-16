@@ -8,6 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - name: Deploy to HF
         env:
@@ -18,12 +20,14 @@ jobs:
           
           # 2. Re-inicializar solo para Hugging Face
           git init
+          git lfs install
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           
           # 3. Agregar solo lo necesario para que el modelo corra
-          git add app.py src/ models/ params.yaml requirements.txt Dockerfile README.md
-          git commit -m "deploy: production release v1"
+          git add -f models/fraud_detection_v1_xgb.pkl
+          git add .gitattributes app.py src/ models/ params.yaml requirements.txt Dockerfile README.md
+          git commit -m "deploy: production release v1 with LFS"
           
           # 4. Forzar el envío a HF (Borrando su historial previo)
           git remote add space https://renteria-luis:$HF_TOKEN@huggingface.co/spaces/renteria-luis/fraud-detection-v1
