@@ -32,6 +32,9 @@ def filter_and_clean(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
       - Split features from target
     Returns (X, y).
     """
+    max_legit_step = df[df[TARGET] == 0]['step'].max()
+    df = df[df['step'] <= max_legit_step].copy()
+    
     df = df[df['type'].isin(FRAUD_TYPES)].copy()
     df = df.drop(columns=DROP_COLS)
 
