@@ -1,3 +1,4 @@
+# src/models/builder.py
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
@@ -6,8 +7,53 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
 
-from src.features import FeatureEngineering
+from src.features.engineering import PaySimFeatures
+from src.config import BINARY_FEATURES, NUMERIC_FEATURES, RANDOM_SEED
 
+
+def build_pipeline(model_name: str = 'xgb', params: dict = None) -> Pipeline:
+    params   = params or {}
+    is_logreg = (model_name == 'logreg')
+
+    num_steps = [('impute', SimpleImputer(strategy='median'))]
+    if is_logreg:
+        num_steps.append(('scaler', StandardScaler()))
+
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('bool', SimpleImputer(strategy='most_frequent'), BINARY_FEATURES),
+            ('num', Pipeline(num_steps), NUMERIC_FEATURES),
+        ],
+        remainder='drop'
+    )
+
+    if model_name == 'logreg':
+        model = LogisticRegression(random_state=RANDOM_SEED, max_iter=1000, **params)
+    elif model_name == 'rf':
+        model = RandomForestClassifier(random_state=RANDOM_SEED, **params)
+    elif model_name == 'xgb':
+        model = XGBClassifier(
+            random_state=RANDOM_SEED,
+            tree_method='hist',
+            device='cpu',
+            eval_metric='aucpr',
+            n_jobs=-1,
+            **params
+        )
+    else:
+        raise ValueError(f"Model {model_name} not supported.")
+
+    return Pipeline([
+        ('fe',           PaySimFeatures(cyclical_encoding=is_logreg)),
+        ('preprocessor', preprocessor),
+        ('model',        model),
+    ])
+    
+
+
+# legacy: this function will no longer be used, because the new dataset (PaySim) has different features and requires a 
+#         different approach. However, I am keeping it here for reference and potential reuse in other contexts.
+from src.features.engineering import FeatureEngineering
 
 def training_pipeline(model_name:str='rf', params:dict=None, seed:int=42) -> Pipeline:
     """
@@ -54,4 +100,3 @@ def training_pipeline(model_name:str='rf', params:dict=None, seed:int=42) -> Pip
         ('preprocessor', preprocessor),  # clasify and cleans them
         ('model', model)                 # predictor
     ])
-

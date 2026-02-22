@@ -2,37 +2,37 @@
 from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
+PAYSIM_PATH   = ROOT / 'data' / 'raw' / 'PS_20174392719_1491204439457_log.csv'
+PROCESSED_DIR = ROOT / 'data' / 'processed'
+MODELS_DIR    = ROOT / 'models'
 
-# Data
-PAYSIM_PATH = ROOT / 'data' / 'raw' / 'PS_20174392719_1491204439457_log.csv'
-FRAUD_TYPES = ['TRANSFER', 'CASH_OUT']   # unique values in 'type' column with isFraud == 1
+FRAUD_TYPES = ['TRANSFER', 'CASH_OUT']
+TARGET      = 'isFraud'
 
-# Columns
-TARGET = 'isFraud'
 DROP_COLS = [
-    'newbalanceOrig',   # leakage: not available at transaction time
-    'newbalanceDest',   # leakage: not available at transaction time
-    'isFlaggedFraud',   # target leak
-    'nameOrig',         # high cardinality, not useful for modeling
-    'nameDest',         # high cardinality, not useful for modeling
-]
-
-# Expected features
-NUMERIC_FEATURES = [
-    'amount',
-    'amount_log',
+    'newbalanceOrig',
+    'newbalanceDest',
     'oldbalanceOrg',
     'oldbalanceDest',
-    'hour_of_day',
-    'day',
-    'amount_to_orig_balance',
-    'amount_to_dest_balance',
+    'isFlaggedFraud',
 ]
-BINARY_FEATURES = ['dest_account_empty_before']
-CATEGORICAL_FEATURES = ['type']
 
-# if cyclical_encoding == True:
+NUMERIC_FEATURES = [
+    'amount_log',
+    'hour_of_day',
+    'dest_tx_count',
+    'dest_unique_orig',
+]
+
+BINARY_FEATURES = [
+    'is_transfer',
+    'is_cash_out',
+    'is_merchant_dest',
+    'is_large_tx',
+    'is_round_amount',
+    'is_night',
+    'orig_is_repeat',
+]
+
 CYCLICAL_FEATURES = ['hour_sin', 'hour_cos']
-
-# Model
 RANDOM_SEED = 42

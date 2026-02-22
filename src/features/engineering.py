@@ -3,45 +3,70 @@ from sklearn.base import BaseEstimator, TransformerMixin
 import pandas as pd
 import numpy as np
 
+
 class PaySimFeatures(BaseEstimator, TransformerMixin):
-    '''
-    Feature engineering for PaySim dataset.
-    All features use only pre-transaction state (no leakage).
-    Expects newbalanceOrig and newbalanceDest already dropped.
-    '''
 
-    def __init__(self, cyclical_encoding: bool = False):
-        # cyclical_encoding=True for logreg/DL, False for tree-based
-        self.cyclical_encoding = cyclical_encoding
+    def __init__(self, cyclical_encoding: bool = False, large_tx_quantile: float = 0.95):
+        self.cyclical_encoding  = cyclical_encoding
+        self.large_tx_quantile  = large_tx_quantile
+        self.threshold_large_   = None
+        self.dest_tx_count_     = None  # dict
+        self.dest_unique_orig_  = None  # dict
+        self.orig_is_repeat_    = None  # dict
 
-    def fit(self, X, y=None):
-        return self  # stateless, no statistics to learn
+    def fit(self, X: pd.DataFrame, y=None):
+        # amount threshold
+        self.threshold_large_ = X['amount'].quantile(self.large_tx_quantile)
+
+        # nameOrig
+        orig_counts = X['nameOrig'].value_counts()
+        self.orig_is_repeat_ = (orig_counts > 1).to_dict()
+
+        # nameDest aggs
+        dest_groups = X.groupby('nameDest')
+        self.dest_tx_count_    = dest_groups['amount'].count().to_dict()
+        self.dest_unique_orig_ = dest_groups['nameOrig'].nunique().to_dict()
+
+        return self
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         X = X.copy()
 
-        # time features
+        # TYPE
+        X['is_transfer']  = (X['type'] == 'TRANSFER').astype('int8')
+        X['is_cash_out']  = (X['type'] == 'CASH_OUT').astype('int8')
+
+        # DEST
+        X['is_merchant_dest'] = X['nameDest'].str.startswith('M').astype('int8')
+
+        # AMOUNT
+        X['amount_log'] = np.log1p(X['amount']).astype('float32')
+        X['is_large_tx'] = (X['amount'] > self.threshold_large_).astype('int8')
+        X['is_round_amount'] = ((X['amount'] % 1000) == 0).astype('int8')
+
+        # TIME
         hour = (X['step'] % 24).astype('int8')
         X['hour_of_day'] = hour
-        X['day'] = (X['step'] // 24).astype('int16')
-        X = X.drop(columns=['step'])
+        X['is_night'] = hour.between(0, 6).astype('int8')
 
-        # cyclical
         if self.cyclical_encoding:
             X['hour_sin'] = np.sin(2 * np.pi * hour / 24).astype('float32')
             X['hour_cos'] = np.cos(2 * np.pi * hour / 24).astype('float32')
 
-        # amount
-        X['amount_log'] = np.log1p(X['amount']).astype('float32')
+        # ORIG, rep in origin
+        X['orig_is_repeat'] = (
+            X['nameOrig'].map(self.orig_is_repeat_).fillna(False).astype('int8')
+        )
 
-        # ratios per tx
-        X['amount_to_orig_balance'] = (X['amount'] / (X['oldbalanceOrg'] + 1)).astype('float32')
-        X['amount_to_dest_balance'] = (X['amount'] / (X['oldbalanceDest'] + 1)).astype('float32')
+        # DEST aggs
+        X['dest_tx_count']    = X['nameDest'].map(self.dest_tx_count_).fillna(1).astype('float32')
+        X['dest_unique_orig'] = X['nameDest'].map(self.dest_unique_orig_).fillna(1).astype('float32')
 
-        # binary flags
-        X['dest_account_empty_before'] = (X['oldbalanceDest'] == 0).astype('int8')
+        # DROP
+        X = X.drop(columns=['step', 'type', 'nameOrig', 'nameDest', 'amount'])
 
         return X
+    
 
 # legacy: this class will no longer be used, because the new dataset (PaySim) has different features and requires a 
 #         different engineering approach. However, I am keeping it here for reference and potential reuse in other contexts.
