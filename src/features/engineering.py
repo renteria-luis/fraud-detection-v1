@@ -2,7 +2,7 @@
 from sklearn.base import BaseEstimator, TransformerMixin
 import pandas as pd
 import numpy as np
-
+pd.set_option('future.no_silent_downcasting', True)
 
 class PaySimFeatures(BaseEstimator, TransformerMixin):
 
@@ -55,7 +55,11 @@ class PaySimFeatures(BaseEstimator, TransformerMixin):
 
         # ORIG, rep in origin
         X['orig_is_repeat'] = (
-            X['nameOrig'].map(self.orig_is_repeat_).fillna(False).astype('int8')
+            X['nameOrig']
+            .map(self.orig_is_repeat_)
+            .infer_objects(copy=False)
+            .fillna(0)
+            .astype('int8')
         )
 
         # DEST aggs
