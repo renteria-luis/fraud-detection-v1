@@ -16,7 +16,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
-COPY api/ /app/api/
+# COPY api/ /app/api/ no needed for HF, docker compose runs a local bind mount with the api
 COPY models/ /app/models/
 COPY src/ /app/src/
 COPY params.yaml /app/
