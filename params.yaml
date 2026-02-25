@@ -1,22 +1,10 @@
 # Global Configuration
 seed: 42
-imbalance_ratio: 598  # 598:1
+imbalance_ratio: 349  # 349:1
 
 # V1: XGBoost (Tuned)
 v1_xgboost:
-  params:
-    tree_method: "hist"
-    device: "cpu"
-    n_estimators: 500
-    max_depth: 7
-    learning_rate: 0.1
-    subsample: 0.8
-    colsample_bytree: 0.8
-    min_child_weight: 3
-    scale_pos_weight: 432
-    reg_lambda: 10
-    gamma: 0.1
-
+  params: "default"
   deployment:
-    threshold: 0.2072
-    pr_auc: 0.8798
+    threshold: 0.2226
+    pr_auc: 0.9079

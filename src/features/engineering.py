@@ -66,8 +66,14 @@ class PaySimFeatures(BaseEstimator, TransformerMixin):
         X['dest_tx_count']    = X['nameDest'].map(self.dest_tx_count_).fillna(1).astype('float32')
         X['dest_unique_orig'] = X['nameDest'].map(self.dest_unique_orig_).fillna(1).astype('float32')
 
+        # Testing
+        X['dest_was_empty'] = (X['oldbalanceDest'] == 0).astype('int8')
+        X['amount_to_dest_ratio'] = (X['amount'] / (X['oldbalanceDest'] + 1)).astype('float32')
+        X['log_dest_balance']     = np.log1p(X['oldbalanceDest']).astype('float32')
+        X['log_orig_balance'] = np.log1p(X['oldbalanceOrg']).astype('float32')
+
         # DROP
-        X = X.drop(columns=['step', 'type', 'nameOrig', 'nameDest', 'amount'])
+        X = X.drop(columns=['step', 'type', 'nameOrig', 'nameDest', 'amount', 'oldbalanceDest', 'oldbalanceOrg'])
 
         return X
     

@@ -12,8 +12,8 @@ TARGET      = 'isFraud'
 DROP_COLS = [
     'newbalanceOrig',
     'newbalanceDest',
-    'oldbalanceOrg',
-    'oldbalanceDest',
+    # 'oldbalanceOrg', testing intentional leakage removal
+    # 'oldbalanceDest', testing intentional leakage removal
     'isFlaggedFraud',
 ]
 
@@ -22,6 +22,9 @@ NUMERIC_FEATURES = [
     'hour_of_day',
     'dest_tx_count',
     'dest_unique_orig',
+    'amount_to_dest_ratio',
+    'log_dest_balance',
+    'log_orig_balance',
 ]
 
 BINARY_FEATURES = [
@@ -32,6 +35,7 @@ BINARY_FEATURES = [
     'is_round_amount',
     'is_night',
     'orig_is_repeat',
+    'dest_was_empty',  # testing intentional leakage removal
 ]
 
 CYCLICAL_FEATURES = ['hour_sin', 'hour_cos']
