@@ -16,7 +16,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
-# COPY api/ /app/api/ # not required in HF, compose has a bind mount anyways to run locally
+COPY api/ /app/api/
 COPY models/ /app/models/
 COPY src/ /app/src/
 COPY params.yaml /app/
