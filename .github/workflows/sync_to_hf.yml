@@ -1,34 +1,41 @@
-name: Sync to Hugging Face
+name: CI & Deploy
+
 on:
   push:
     branches: [main]
+  pull_request:
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4         # Checkout the repo
+      - uses: actions/setup-python@v5     # Setup Python environment
+        with:
+          python-version: "3.10"
+      - run: pip install -r requirements.txt  # Install dependencies
+      - run: pytest tests/ -v                  # Run tests
+
   deploy:
     runs-on: ubuntu-latest
+    needs: test                        # Only run if tests pass
+    if: github.event_name == 'push'   # Only on push, not PR
     steps:
       - uses: actions/checkout@v4
         with:
-          lfs: true
+          lfs: true                     # Enable Git LFS
 
       - name: Deploy to HF
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          # 1. Limpiar entorno temporal (No afecta a tu GitHub)
           rm -rf .git assets notebooks data
-          
-          # 2. Re-inicializar solo para Hugging Face
           git init
           git lfs install
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          
-          # 3. Agregar solo lo necesario para que el modelo corra
           git add -f models/fraud_detection_v1_xgb.pkl
           git add .gitattributes app.py src/ models/ params.yaml requirements.txt Dockerfile README.md
           git commit -m "deploy: production release v1 with LFS"
-          
-          # 4. Forzar el envío a HF (Borrando su historial previo)
           git remote add space https://renteria-luis:$HF_TOKEN@huggingface.co/spaces/renteria-luis/fraud-detection-v1
-          git push space master:main --force
+          git push space master:main --force  # Push to Hugging Face Space
